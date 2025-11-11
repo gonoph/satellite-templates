@@ -63,7 +63,14 @@ if plugin_present?('katello')
 <% end -%>
 
 %pre
-<%= snippet('ca_registration') %>
+# copy satellite ca cert to anchors in order to pull image
+
+CA_TRUST_ANCHORS=/etc/pki/ca-trust/source/anchors
+CA_CERT=$CA_TRUST_ANCHORS/satellite_ca.crt
+
+<%= save_to_file('"$CA_CERT"', foreman_server_ca_cert) -%>
+
+update-ca-trust
 <%= section_end %>
 
 <% if (is_fedora && os_major < 29) || (rhel_compatible && os_major <= 7) -%>
