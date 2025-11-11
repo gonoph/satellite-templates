@@ -1,0 +1,27 @@
+<%#
+name: Kickstart default custom post
+description: This adds users from admin_users and runs a finisher script from zfs1
+snippet: true
+model: ProvisioningTemplate
+organizations:
+- Gonoph
+locations:
+- Home
+-%>
+<% if host_param('admin_users') -%>
+for user in <%= host_param('admin_users') %> ; do
+    if getent passwd $user ; then
+        echo "$user already exists!"
+    else
+        useradd $user || true
+    fi
+    usermod -a -G wheel $user || true
+    echo "$user ALL=(ALL)	NOPASSWD: ALL" > /etc/sudoers.d/01-$user || true
+done
+restorecon -Rv /etc/sudoers.d
+<% else -%>
+echo "admin_users is not defined! No users to add!"
+<% end -%>
+curl http://zfs1.virt.gonoph.net/pulp/content/scripts/all.sh -o /tmp/all.sh && sh /tmp/all.sh || true
+subscription-manager facts --update
+dnf uploadprofile --force-upload
