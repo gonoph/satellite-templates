@@ -62,6 +62,10 @@ if plugin_present?('katello')
 # Content Source: <%= @host.content_source %>
 <% end -%>
 
+%pre
+<%= snipper('ca_registration') %>
+<%= section_end %>
+
 <% if (is_fedora && os_major < 29) || (rhel_compatible && os_major <= 7) -%>
 install
 <% end -%>
