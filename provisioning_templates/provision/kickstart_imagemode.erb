@@ -63,7 +63,7 @@ if plugin_present?('katello')
 <% end -%>
 
 %pre
-<%= snipper('ca_registration') %>
+<%= snippet('ca_registration') %>
 <%= section_end %>
 
 <% if (is_fedora && os_major < 29) || (rhel_compatible && os_major <= 7) -%>
