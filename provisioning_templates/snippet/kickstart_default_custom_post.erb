@@ -15,9 +15,9 @@ for user in <%= host_param('admin_users') %> ; do
     else
         useradd $user || true
     fi
-    home_dir=$(getent passwd "$USER" | cut -d: -f6)
+    home_dir=$(getent passwd "$user" | cut -d: -f6)
     if test -d "$home_dir" ; then
-      echo "$home_dir is already there."
+      echo "dir: $home_dir is already there."
     else
       if test -n "$home_dir" ; then
         echo "$home_dir not there, but user was created. creating again..."
