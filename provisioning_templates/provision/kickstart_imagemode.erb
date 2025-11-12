@@ -150,7 +150,6 @@ key --skip
 skipx
 text
 reboot<% if host_param_true?('install_reboot_kexec') %> --kexec<% end %>
-<%= section_end %>
 
 <% if @dynamic -%>
 %pre --log=/tmp/install.pre.dynamic.log
