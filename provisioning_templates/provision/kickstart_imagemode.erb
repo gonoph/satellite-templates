@@ -172,13 +172,13 @@ chvt 3
 (
 
 <% if host_param_false?('no-resolv-override') -%>
-cp -va /etc/resolv.conf /mnt/sysimage/etc/resolv.conf
+cp -va /etc/resolv.conf /mnt/sysroot/etc/resolv.conf
 <% end -%>
 
 <%= snippet_if_exists(template_name + " custom postnochroot") -%>
 
 chvt 1
-) 2>&1 | tee /mnt/sysimage/root/install.postnochroot.log
+) 2>&1 | tee /mnt/sysroot/root/install.postnochroot.log
 <%= section_end %>
 
 <%#
@@ -230,7 +230,7 @@ chvt 1
 
 # copy %pre log files into chroot
 %post --nochroot
-cp -vf /tmp/*.pre.*.log /mnt/sysimage/root/
+cp -vf /tmp/*.pre.*.log /mnt/sysroot/root/
 <%= section_end %>
 
 <%#
