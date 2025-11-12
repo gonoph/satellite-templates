@@ -166,7 +166,7 @@ reboot<% if host_param_true?('install_reboot_kexec') %> --kexec<% end %>
 bootc install ensure-completion
 <%= section_end %>
 
-%post --nochroot
+%post --nochroot --log=/mnt/sysroot/var/roothome/install.postnochroot1.log --erroronfail
 exec < /dev/tty3 > /dev/tty3
 chvt 3
 (
@@ -178,7 +178,7 @@ cp -va /etc/resolv.conf /mnt/sysroot/etc/resolv.conf
 <%= snippet_if_exists(template_name + " custom postnochroot") -%>
 
 chvt 1
-) 2>&1 | tee /mnt/sysroot/root/install.postnochroot.log
+) 2>&1 | tee /mnt/sysroot/var/roothome/install.postnochroot.log
 <%= section_end %>
 
 <%#
@@ -229,7 +229,7 @@ chvt 1
 <%= section_end %>
 
 # copy %pre log files into chroot
-%post --nochroot
+%post --nochroot --log=/mnt/sysroot/var/roothome/install.post-copy-pre.log
 cp -vf /tmp/*.pre.*.log /mnt/sysroot/root/
 <%= section_end %>
 
@@ -252,4 +252,3 @@ fi
 
 sync
 <%= section_end %>
-
