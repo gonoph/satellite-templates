@@ -215,7 +215,9 @@ chmod +x /root/remote_execution_pull_setup.sh
 
 <%= snippet_if_exists(template_name + " custom post") %>
 
-<%= snippet 'insights' if host_param_true?('host_registration_insights') && os_major < 9 -%>
+# register insights when we're doing image mode
+insights-client --register || true
+
 <%= snippet 'disk_enc_clevis_tang' if host_param('disk_enc_tang_servers') -%>
 
 touch /tmp/foreman_built
