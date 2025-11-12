@@ -1,14 +1,9 @@
 <%#
 kind: provision
-name: Kickstart default imagemode
+name: Kickstart imagemode
 model: ProvisioningTemplate
 oses:
-- RedHat 10
-- RedHat 9.6
-- RedHat 9.7
-- RedHat 9.8
-- RedHat 9.9
-- RedHat 9.10
+  - ImageMode
 locations:
   - Home
 organizations:
@@ -66,6 +61,17 @@ if plugin_present?('katello')
 # Content View: <%= @host.single_content_view %>
 # Content Source: <%= @host.content_source %>
 <% end -%>
+
+%pre
+# copy satellite ca cert to anchors in order to pull image
+
+CA_TRUST_ANCHORS=/etc/pki/ca-trust/source/anchors
+CA_CERT=$CA_TRUST_ANCHORS/satellite_ca.crt
+
+<%= save_to_file('"$CA_CERT"', foreman_server_ca_cert) -%>
+
+update-ca-trust
+<%= section_end %>
 
 <% if (is_fedora && os_major < 29) || (rhel_compatible && os_major <= 7) -%>
 install
@@ -145,9 +151,6 @@ skipx
 text
 reboot<% if host_param_true?('install_reboot_kexec') %> --kexec<% end %>
 
-%packages
-<%= section_end %>
-
 <% if @dynamic -%>
 %pre --log=/tmp/install.pre.dynamic.log
 <%= snippet_if_exists(template_name + " custom pre") %>
@@ -155,19 +158,27 @@ reboot<% if host_param_true?('install_reboot_kexec') %> --kexec<% end %>
 <%= section_end %>
 <% end -%>
 
-%post --nochroot
+<%#
+  Saw this in https://gitlab.com/fedora/bootc/tests/bootc-workflow-test/-/blob/main/anaconda.sh?ref_type=heads
+%>
+%post --log=/root/install-bootc.post.log --erroronfail
+# bootc anaconda workaround
+bootc install ensure-completion
+<%= section_end %>
+
+%post --nochroot --log=/mnt/sysroot/var/roothome/install.postnochroot1.log --erroronfail
 exec < /dev/tty3 > /dev/tty3
 chvt 3
 (
 
 <% if host_param_false?('no-resolv-override') -%>
-cp -va /etc/resolv.conf /mnt/sysimage/etc/resolv.conf
+cp -va /etc/resolv.conf /mnt/sysroot/etc/resolv.conf
 <% end -%>
 
 <%= snippet_if_exists(template_name + " custom postnochroot") -%>
 
 chvt 1
-) 2>&1 | tee /mnt/sysimage/root/install.postnochroot.log
+) 2>&1 | tee /mnt/sysroot/var/roothome/install.postnochroot.log
 <%= section_end %>
 
 <%#
@@ -204,7 +215,9 @@ chmod +x /root/remote_execution_pull_setup.sh
 
 <%= snippet_if_exists(template_name + " custom post") %>
 
-<%= snippet 'insights' if host_param_true?('host_registration_insights') && os_major < 9 -%>
+# register insights when we're doing image mode
+insights-client --register || true
+
 <%= snippet 'disk_enc_clevis_tang' if host_param('disk_enc_tang_servers') -%>
 
 touch /tmp/foreman_built
@@ -218,8 +231,8 @@ chvt 1
 <%= section_end %>
 
 # copy %pre log files into chroot
-%post --nochroot
-cp -vf /tmp/*.pre.*.log /mnt/sysimage/root/
+%post --nochroot --log=/mnt/sysroot/var/roothome/install.post-copy-pre.log
+cp -vf /tmp/*.pre.*.log /mnt/sysroot/root/
 <%= section_end %>
 
 <%#
@@ -241,4 +254,3 @@ fi
 
 sync
 <%= section_end %>
-
