@@ -150,8 +150,6 @@ key --skip
 skipx
 text
 reboot<% if host_param_true?('install_reboot_kexec') %> --kexec<% end %>
-
-%packages
 <%= section_end %>
 
 <% if @dynamic -%>
@@ -160,6 +158,14 @@ reboot<% if host_param_true?('install_reboot_kexec') %> --kexec<% end %>
 <%= @host.diskLayout %>
 <%= section_end %>
 <% end -%>
+
+<%#
+  Saw this in https://gitlab.com/fedora/bootc/tests/bootc-workflow-test/-/blob/main/anaconda.sh?ref_type=heads
+%>
+%post --log=/root/install-bootc.post.log --erroronfail
+# bootc anaconda workaround
+bootc install ensure-completion
+<%= section_end %>
 
 %post --nochroot
 exec < /dev/tty3 > /dev/tty3
