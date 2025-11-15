@@ -8,8 +8,18 @@ At a high level:
 1. Create a custom OS called ImageMode #major#.#minor# (example ImageMode 10.0)
 2. Synchronize these templates into your Satellite.
 3. Update the default templates for the OS.
-4. Create a new host, select Image Mode as your OS, configure it.
-5. Boot the host, and watch it provision as an Image Mode system!
+4. Assign parameter `imagemode_image` to point to the container image in the
+   registry. You can update this on a host by host basis, too.
+5. Also configure some optional parameters:
+    1. `admin_users` - space delimited list of users to create and add to sudoers
+    2. `custom_adhoc_post_command` - shell type script to run as part of %post
+    3. `host_registration_insights` - (true) register insights as part of registration
+    4. `only_subscription_manager_repos` - (false) don't fiddle with repos
+    5. `redhat_install_host_tools` - (false) don't install anything
+    6. `redhat_install_host_tracer_tools` - (false) don't install anything
+    7. `subscription_manager_auto_attach` - (false) don't attach any subs
+6. Create a new host, select Image Mode as your OS, configure it.
+7. Boot the host, and watch it provision as an Image Mode system!
 
 Things working:
 
