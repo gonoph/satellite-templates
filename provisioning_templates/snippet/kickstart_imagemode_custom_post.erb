@@ -7,6 +7,8 @@ organizations:
 - Gonoph
 locations:
 - Home
+parameters:
+- custom_adhoc_post_command: adhoc command to run during post
 -%>
 <% if host_param('admin_users') -%>
 for user in <%= host_param('admin_users') %> ; do
@@ -36,6 +38,10 @@ restorecon -Rv /home
 <% else -%>
 echo "admin_users is not defined! No users to add!"
 <% end -%>
-curl http://zfs1.virt.gonoph.net/pulp/content/scripts/all.sh -o /tmp/all.sh && sh /tmp/all.sh || true
+<% if host_param('custom_adhoc_post_command') -%>
+(
+<%= host_param('custom_adhoc_post_command') %>
+) || true
+<% end -%>
 subscription-manager facts --update
 dnf uploadprofile --force-upload
