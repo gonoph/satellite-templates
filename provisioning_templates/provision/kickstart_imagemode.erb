@@ -233,7 +233,9 @@ cat<<"FIRST_BOOT_SCRIPT">/etc/systemd/system/update_satellite_fact_firstboot.ser
 [Unit]
 Description=Update Satellite Facts on first boot
 ConditionFirstBoot=yes
+Wants=network.target first-boot-complete.target
 After=network.target
+Before=first-boot-complete.target
 
 [Service]
 Type=oneshot
