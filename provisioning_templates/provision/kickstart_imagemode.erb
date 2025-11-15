@@ -228,6 +228,8 @@ done
 echo "register insights when we're doing image mode."
 insights-client --register || true
 
+sleep 3600 || true
+
 echo "subman can't update bootc info until after boot. Creating first boot script."
 cat<<"FIRST_BOOT_SCRIPT">/etc/systemd/system/update_satellite_fact_firstboot.service
 [Unit]
