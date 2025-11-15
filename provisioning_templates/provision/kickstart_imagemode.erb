@@ -216,7 +216,12 @@ chmod +x /root/remote_execution_pull_setup.sh
 <%= snippet_if_exists(template_name + " custom post") %>
 
 # register insights when we're doing image mode
-insights-client --register || true
+if -d /var/lib/insights/ ; then
+  insights-client --register || true
+else
+  echo "/var/lib/insights - doesn't exist! weird
+  sleep 3600
+fi
 
 <%= snippet 'disk_enc_clevis_tang' if host_param('disk_enc_tang_servers') -%>
 
