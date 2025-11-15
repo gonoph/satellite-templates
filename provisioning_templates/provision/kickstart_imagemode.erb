@@ -215,21 +215,15 @@ chmod +x /root/remote_execution_pull_setup.sh
 
 <%= snippet_if_exists(template_name + " custom post") %>
 
-echo -n "Testing /var/lib/insights...   "
-if test -d /var/lib/insights ; then
-  echo "already exists."
-else
-  echo "creating!"
-  mkdir -p /var/lib/insights
-fi
-
-echo -n "Testing /var/tmp...   "
-if test -d /var/tmp ; then
-  echo "already exists."
-else
-  echo "creating!"
-  mkdir -p /var/tmp
-fi
+for i in /var/lib/insights /var/tmp ; do
+  echo -n "Testing $i ...   "
+  if test -d $i ; then
+    echo "already exists."
+  else
+    echo "creating!"
+    mkdir -p $i
+  fi
+done
 
 echo "register insights when we're doing image mode."
 insights-client --register || true
