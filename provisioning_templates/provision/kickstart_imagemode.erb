@@ -228,27 +228,6 @@ done
 echo "register insights when we're doing image mode."
 insights-client --register || true
 
-sleep 3600 || true
-
-echo "subman can't update bootc info until after boot. Creating first boot script."
-cat<<"FIRST_BOOT_SCRIPT">/etc/systemd/system/update_satellite_fact_firstboot.service
-[Unit]
-Description=Update Satellite Facts on first boot
-ConditionFirstBoot=yes
-Wants=network.target first-boot-complete.target
-After=network.target
-Before=first-boot-complete.target
-
-[Service]
-Type=oneshot
-ExecStart=subscription-manager facts --update
-
-[Install]
-WantedBy=multi-user.target
-FIRST_BOOT_SCRIPT
-
-systemctl enable update_satellite_fact_firstboot.service
-
 <%= snippet 'disk_enc_clevis_tang' if host_param('disk_enc_tang_servers') -%>
 
 touch /tmp/foreman_built
