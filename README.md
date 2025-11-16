@@ -109,6 +109,7 @@ during provisioning. Any updates need to come from a new container image.
 | `partition_tables`    | partition table template that work for Image Mode | Kickstart imagemode partition |
 | `architectures`       | Image Mode works on x86_64 and ARM64      | architectures: [ x86_64 ]        |
 | `template_parameters` | define some sane defaults that apply to hosts with this OS type | (see below) |
+| `global_parameters`   | define some sane defaults for EVERYTHING (that's what I do) | (see below) |
 
 ```yaml
 imagemode_image: "registry.lab.example.com/rhel{{ os_item | split('.') | first}}/workload-vm:{{ os_item }}"
@@ -145,11 +146,55 @@ template_parameters:
     parameter_type: boolean
     value: true
     hidden_value: false
+global_parameters:
+  - name: custom_adhoc_post_command
+    parameter_type: string
+    value: "curl http://management.scripts.example.net/scripts/config.sh -o /tmp/config.sh && sh /tmp/config.sh"
+  - name: admin_users
+    parameter_type: string
+    value: "ansible alice bob"
+  - name: enable-epel
+    parameter_type: boolean
+    value: false
+  - name: enable-puppet5
+    parameter_type: boolean
+    value: false
+  - name: host_packages
+    parameter_type: string
+    value: ''
+  - name: host_registration_insights
+    parameter_type: boolean
+    value: true
+  - name: host_registration_insights_inventory
+    parameter_type: boolean
+    value: true
+  - name: host_registration_remote_execution
+    parameter_type: boolean
+    value: true
+  - name: install_reboot_kexec
+    parameter_type: boolean
+    value: false
+  - name: remote_execution_create_user
+    parameter_type: boolean
+    value: true
+  - name: skip-puppet-setup
+    parameter_type: boolean
+    value: true
 ```
 
 ## Playbook tasks
 
 ```yaml
+- name: "Update a Global Parameters"
+  theforeman.foreman.global_parameter:
+    server_url: "{{ satellite_host }}"
+    username: "{{ satellite_user }}"
+    password: "{{ satellite_pass }}"
+    name: "{{ item.name}}"
+    value: "{{ item.value }}"
+    parameter_type: "{{ item.parameter_type }}"
+  loop: "{{ global_parameters }}"
+
 - name: create ImageMode OS
   theforeman.foreman.operatingsystem:
     server_url: "{{ satellite_host }}"
