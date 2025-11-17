@@ -107,7 +107,7 @@ during provisioning. Any updates need to come from a new container image.
 | `imagemode_image`     | will render the name of the container image | registry.lab.example.com/rhel10/workload-vm:10.1 |
 | `os_versions`         | the specific OS versions that Image Mode supports | string: 10.1, 10.0, 9.6, 9.5 |
 | `partition_tables`    | partition table template that work for Image Mode | Kickstart imagemode partition |
-| `architectures`       | Image Mode works on x86_64 and ARM64      | architectures: [ x86_64 ]        |
+| `architectures`       | Image Mode works on x86_64 and ARM64      | architectures: [ x86_64, aarch64 ] |
 | `template_parameters` | define some sane defaults that apply to hosts with this OS type | (see below) |
 | `global_parameters`   | define some sane defaults for EVERYTHING (that's what I do) | (see below) |
 
@@ -122,6 +122,7 @@ partition_tables:
   - Kickstart imagemode partition
 architectures:
   - x86_64
+  - aarch64
 template_parameters:
   - name: imagemode_image
     parameter_type: string
@@ -185,7 +186,7 @@ global_parameters:
 ## Playbook tasks
 
 ```yaml
-- name: "Update a Global Parameters"
+- name: Update Global Parameters
   theforeman.foreman.global_parameter:
     server_url: "{{ satellite_host }}"
     username: "{{ satellite_user }}"
@@ -216,7 +217,7 @@ global_parameters:
     username: "{{ satellite_user }}"
     password: "{{ satellite_pass }}"
     repo: https://github.com/gonoph/satellite-templates.git
-    branch: production
+    branch: main
     associate: new
   register: import_templates
 
