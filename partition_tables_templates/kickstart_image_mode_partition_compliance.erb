@@ -1,6 +1,6 @@
 <%#
-name: Kickstart imagemode partition
-description: Creating partition table that works for Image Mode
+name: Kickstart imagemode partition for compliance
+description: Creating partition table that works for Image Mode with compliance
 snippet: false
 model: Ptable
 os_family: Redhat
@@ -10,14 +10,14 @@ oses:
 organizations:
 - Gonoph
 locations:
-- Home
+  - Home
 description: |
   This partition table is for RHEL package mode and image mode systems. It's
   designed to comply with various security compliance partition standards.
 
   This template understands the following parameters:
   - only-use: string (to limit partitioning and clearing to certain disks)
-  - disk_enc_passphrase: string (to encrypt the logical volume)
+  - disk_enc_passphrase: string (default: linux - to encrypt the logical volume)
 
   Reference links:
   - https://complianceascode.github.io/content-pages/guides/index.html
@@ -25,6 +25,9 @@ description: |
   - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/automatically_installing_rhel/kickstart-commands-and-options-reference_rhel-installer
   - https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/automatically_installing_rhel/kickstart-commands-and-options-reference
 -%>
+
+# This partition scheme meets most major Compliance Profiles:
+# CIS1 CIS2 CNN-ADV CNN-BASIC CNN-INTER DISA-STIG HIPAA NIST-800-171 OSPP PCI-DSS
 
 <% if host_param('only-use') -%>
 # ignore all disks except the one defined here
@@ -34,14 +37,25 @@ ignoredisk --only-use=<%= host_param('only-use') %>
 zerombr
 clearpart --all --initlabel --disklabel=gpt
 reqpart --add-boot
-<% if host_param('disk_enc_passphrase') -%>
+
+# required for RHEL 9/10: DISA-STIG HIPAA CNN-ADV
 part pv.01 --size=8192 --maxsize=35840 --grow --encrypted --passphrase="<%= host_param('disk_enc_passphrase', 'linux') %>"
-<% else -%>
-part pv.01 --size=8192 --maxsize=35840 --grow
-<% end -%>
+
 volgroup rhel pv.01
 logvol none --size=8192 --grow --thinpool --vgname=rhel --name=pool0
 logvol swap --size=1024 --grow --maxsize=5120 --thin --poolname=pool0 --vgname=rhel --fstype=swap --name=swap
+
+# NIST-800-171 PCI-DSS OSPP CIS2 CNN-ADV CNN-BASIC CNN-INTER
+logvol /var/log/audit --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=varlog
+
+# DISA-STIG CIS2 CIS1
+logvol /tmp --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=var
+
+# DISA-STIG CIS2
+logvol /var/tmp --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=var
 logvol /var --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=var
 logvol /var/log --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=varlog
+logvol /home --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=varlog
+
+# finally root vol
 logvol / --thin --poolname=pool0 --size=5120 --grow --maxsize=20480 --vgname=rhel --fstype=xfs --name=root
