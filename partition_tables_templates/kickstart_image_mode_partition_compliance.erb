@@ -39,10 +39,10 @@ clearpart --all --initlabel --disklabel=gpt
 reqpart --add-boot
 
 # required for RHEL 9/10: DISA-STIG HIPAA CNN-ADV
-part pv.01 --size=8192 --maxsize=35840 --grow --encrypted --passphrase="<%= host_param('disk_enc_passphrase', 'linux') %>"
+part pv.01 --size=12288 --maxsize=35840 --grow --encrypted --passphrase="<%= host_param('disk_enc_passphrase', 'linux') %>"
 
 volgroup rhel pv.01
-logvol none --size=8192 --grow --thinpool --vgname=rhel --name=pool0
+logvol none --size=12288 --grow --thinpool --vgname=rhel --name=pool0
 logvol swap --size=1024 --grow --maxsize=5120 --thin --poolname=pool0 --vgname=rhel --fstype=swap --name=swap
 
 # NIST-800-171 PCI-DSS OSPP CIS2 CNN-ADV CNN-BASIC CNN-INTER
