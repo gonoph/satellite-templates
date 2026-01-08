@@ -45,6 +45,9 @@ volgroup rhel pv.01
 logvol none --size=12288 --grow --thinpool --vgname=rhel --name=pool0
 logvol swap --size=1024 --grow --maxsize=5120 --thin --poolname=pool0 --vgname=rhel --fstype=swap --name=swap
 
+<% if host_param('imagemode_image') && (rhel_compatible && os_major < 10) -%>
+# For Image Mode, only RHEL 10 and above support different mount points
+<% else -%>
 # NIST-800-171 PCI-DSS OSPP CIS2 CNN-ADV CNN-BASIC CNN-INTER
 logvol /var/log/audit --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=varlogaudit
 
@@ -56,6 +59,7 @@ logvol /var/tmp --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgna
 logvol /var/log --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=varlog
 logvol /var --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=var
 logvol /home --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=home
+<% end -%>
 
 # finally root vol
 logvol / --thin --poolname=pool0 --size=5120 --grow --maxsize=20480 --vgname=rhel --fstype=xfs --name=root
