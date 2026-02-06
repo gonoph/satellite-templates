@@ -1,6 +1,6 @@
 <%#
 name: Kickstart default custom post
-description: This adds users from admin_users and runs a finisher script from zfs1
+description: This adds users from admin_users and runs a finisher script from custom_adhoc_post_command
 snippet: true
 model: ProvisioningTemplate
 organizations:
@@ -10,6 +10,12 @@ locations:
 parameters:
 - custom_adhoc_post_command: adhoc command to run during post
 -%>
+<% if host_param_false?('package_upgrade') -%>
+export PACKAGE_UPGRADE=no
+<% else -%>
+export PACKAGE_UPGRADE=yes
+<% end -%>
+
 <% if host_param('admin_users') -%>
 for user in <%= host_param('admin_users') %> ; do
     if getent passwd $user ; then
