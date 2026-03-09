@@ -9,6 +9,7 @@ locations:
 - Home
 parameters:
 - custom_adhoc_post_command: adhoc command to run during post
+- disk_enc_passphrase: initial passphrase for luks encrypted disks
 -%>
 <% if host_param_false?('package_upgrade') -%>
 export PACKAGE_UPGRADE=no
@@ -43,6 +44,9 @@ restorecon -Rv /etc/sudoers.d
 restorecon -Rv /home
 <% else -%>
 echo "admin_users is not defined! No users to add!"
+<% end -%>
+<% if host_param('disk_enc_passphrase') -%>
+  export BIND_PASS="<%= host_param('disk_enc_passphrase') %>"
 <% end -%>
 <% if host_param('custom_adhoc_post_command') -%>
 (
