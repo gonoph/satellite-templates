@@ -225,8 +225,27 @@ for i in /var/lib/insights /var/tmp ; do
   fi
 done
 
-echo "register insights when we're doing image mode."
-insights-client --register || true
+echo "Create the first-boot systemd unit: Register system to Red Hat Insights"
+cat << 'EOF' > /etc/systemd/system/insights-register.service
+[Unit]
+Description=Register system to Red Hat Insights
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/etc/insights-client/.registered_firstboot
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/insights-client --register
+ExecStartPost=/usr/bin/touch /etc/insights-client/.registered_firstboot
+ExecStartPost=/usr/bin/systemctl disable insights-register.service
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+echo "Enable the service for first boot"
+systemctl enable insights-register.service
 
 <%= snippet 'disk_enc_clevis_tang' if host_param('disk_enc_tang_servers') -%>
 
