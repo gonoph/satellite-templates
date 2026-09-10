@@ -63,7 +63,8 @@ logvol /tmp --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=r
 # DISA-STIG CIS2
 logvol /var/tmp --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=vartmp
 logvol /var/log --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=varlog
-logvol /var --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=var
+### it's very problematic to make /var a mount point for image mode. I don't recommned it as it makes some upgrades difficult.
+# logvol /var --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=var
 logvol /home --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=home
 <% end -%>
 

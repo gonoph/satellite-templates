@@ -51,7 +51,8 @@ logvol swap --size=1024 --grow --maxsize=5120 --thin --poolname=pool0 --vgname=r
 <% if host_param('imagemode_image') && ( (is_fedora && os_major < 40) || (rhel_compatible && os_major < 10) ) -%>
 # For Image Mode, only RHEL 10 and above support different mount points
 <% else -%>
-logvol /var --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=var
+### it's very problematic to make /var a mount point for image mode. I don't recommned it as it makes some upgrades difficult.
+# logvol /var --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=var
 logvol /var/log --thin --poolname=pool0 --size=1024 --grow --maxsize=5120 --vgname=rhel --fstype=xfs --name=varlog
 <% end -%>
 logvol / --thin --poolname=pool0 --size=5120 --grow --maxsize=20480 --vgname=rhel --fstype=xfs --name=root
